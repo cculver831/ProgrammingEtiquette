@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Magic
+  - Intelligence
+  - Fly
+  - UNDO
   layers:
   - Default
   - TransparentFX
