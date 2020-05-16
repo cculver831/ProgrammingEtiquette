@@ -14,6 +14,10 @@ public class DoorManager : MonoBehaviour
             GetComponent<BoxCollider>().isTrigger = true;
             //Make door solid again
         }
+        else
+        {
+            Debug.Log("You don't have access to this door yet");
+        }
     }
     private void OnTriggerExit(Collider other)
     {
