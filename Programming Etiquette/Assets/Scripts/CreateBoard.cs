@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class CreateBoard : MonoBehaviour
 {
     public GameObject treePrefab;
-    long TreeBB = 0;
+    long TreeBB = 0; // for Trees
     long PlayerBB = 0; // for house
     public GameObject[] tilePrefabs;
     public GameObject housePreFab;
@@ -14,7 +14,7 @@ public class CreateBoard : MonoBehaviour
     GameObject[] tiles; //hold onto tiles
     //actual bitboard
     long dirtBB = 0; //need a bitboard for each tile
-
+    long desertBB = 0; //need a bitboard for each tile
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +34,11 @@ public class CreateBoard : MonoBehaviour
                 if(tile.tag == "Dirt")
                 {
                     dirtBB = SetCellState(dirtBB & ~PlayerBB, r, c);
+                    //printBB("Dirt", dirtBB);
+                }
+                else if (tile.tag == "Desert")
+                {
+                    desertBB = SetCellState(desertBB & ~PlayerBB, r, c);
                     //printBB("Dirt", dirtBB);
                 }
             }
@@ -58,14 +63,21 @@ public class CreateBoard : MonoBehaviour
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit))
             {
+                int r = (int)hit.collider.gameObject.transform.position.z;
+                int c = (int)hit.collider.gameObject.transform.position.x;
+                if(getCellState((dirtBB & ~TreeBB) | desertBB, r, c))
+                {
+                    GameObject house = Instantiate(housePreFab);
+                    house.transform.parent = hit.collider.gameObject.transform; //parent house to tile that was clicked
+                    house.transform.localPosition = Vector3.zero; // sets local position to zero for simplicity
+                    PlayerBB = SetCellState(PlayerBB, r, c);
+                    CalcScore();
+                }
 
-                GameObject house = Instantiate(housePreFab);
-                house.transform.parent = hit.collider.gameObject.transform; //parent house to tile that was clicked
-                house.transform.localPosition = Vector3.zero; // sets local position to zero for simplicity
-                PlayerBB = SetCellState(PlayerBB, (int)hit.collider.gameObject.transform.position.z, (int)hit.collider.gameObject.transform.position.x);
             }
-
+           
         }
+        
     }
     //Set a bit board cell to 1
     long SetCellState(long biboard, int row, int col)
@@ -95,12 +107,17 @@ public class CreateBoard : MonoBehaviour
         return count;
     }
 
+    void CalcScore()
+    {
+        Score.text = "Score: " + (CellCount(dirtBB & PlayerBB) * 10 + CellCount(desertBB & PlayerBB) * 2);
+    }
+
     //plants treee on random dirt tile on invoke
     void PlantTree()
     {
         int rr = UnityEngine.Random.Range(0, 8);
         int rc = UnityEngine.Random.Range(0, 8);
-        if(getCellState(dirtBB & ~TreeBB, rr, rc))
+        if(getCellState(dirtBB & ~PlayerBB, rr, rc))
         {
             GameObject tree = Instantiate(treePrefab);
             tree.transform.parent = tiles[rr * 8 + rc].transform;
