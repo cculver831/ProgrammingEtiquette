@@ -10,7 +10,7 @@ public class CreateBoard : MonoBehaviour
     long PlayerBB = 0; // for house
     public GameObject[] tilePrefabs;
     public GameObject housePreFab;
-    public Text Score;
+    public Text Score; //displays Score
     GameObject[] tiles; //hold onto tiles
     //actual bitboard
     long dirtBB = 0; //need a bitboard for each tile
@@ -31,12 +31,12 @@ public class CreateBoard : MonoBehaviour
 
                 tile.name = tile.tag + "_" + r + "_" + c;
                 tiles[r * 8 + c] = tile; //adds tile to Array
-                if(tile.tag == "Dirt")
+                if(tile.tag == "Dirt") //Grabs all dirt tags and puts them in bitboard
                 {
                     dirtBB = SetCellState(dirtBB & ~PlayerBB, r, c);
                     //printBB("Dirt", dirtBB);
                 }
-                else if (tile.tag == "Desert")
+                else if (tile.tag == "Desert") //Grabs all desert tags and puts them in bitboard
                 {
                     desertBB = SetCellState(desertBB & ~PlayerBB, r, c);
                     //printBB("Dirt", dirtBB);
@@ -44,7 +44,7 @@ public class CreateBoard : MonoBehaviour
             }
         }
         Debug.Log("Cell Count: " + CellCount(dirtBB));
-        InvokeRepeating("PlantTree", 1, 1);
+        InvokeRepeating("PlantTree", 1, 1); //Plants tree every second
     }
 
     //Show bit board in a flattened array in console 
@@ -57,15 +57,15 @@ public class CreateBoard : MonoBehaviour
     {
         //Player interaction
         //click on tile and put a house down
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetMouseButtonDown(0))//Note: difference between GetMouseButton and GetMouseButtonDown
         {
             RaycastHit hit;
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit))
             {
-                int r = (int)hit.collider.gameObject.transform.position.z;
-                int c = (int)hit.collider.gameObject.transform.position.x;
-                if(getCellState((dirtBB & ~TreeBB) | desertBB, r, c))
+                int r = (int)hit.collider.gameObject.transform.position.z; //Grabs position of tile object Player hit
+                int c = (int)hit.collider.gameObject.transform.position.x; //Grabs position of tile object Player hit
+                if (getCellState((dirtBB & ~TreeBB) | desertBB, r, c))
                 {
                     GameObject house = Instantiate(housePreFab);
                     house.transform.parent = hit.collider.gameObject.transform; //parent house to tile that was clicked
